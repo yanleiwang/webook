@@ -23,7 +23,7 @@ sudo n stable
 
 ## 快速启动
 
-进入webook-fe 目录底下，执行 
+进入fe 目录底下，执行 
 
 ```shell
 npm install && npm run dev
