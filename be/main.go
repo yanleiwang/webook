@@ -63,7 +63,7 @@ func initDB() *gorm.DB {
 		panic(err)
 	}
 
-	err = db.AutoMigrate(&dao.GORMUserDAO{})
+	err = db.AutoMigrate(&dao.User{})
 	if err != nil {
 		panic(err)
 	}

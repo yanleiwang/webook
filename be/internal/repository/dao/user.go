@@ -59,12 +59,12 @@ func (dao *GORMUserDAO) Insert(ctx context.Context, user User) error {
 type User struct {
 	Id int64 `gorm:"primaryKey, autoIncrement"`
 	// 全部用户唯一
-	Email    sql.NullString `gorm:"uniqueIndex"`
+	Email    sql.NullString `gorm:"unique"`
 	Password string
 
 	// 唯一索引允许有多个空值
 	// 但是不能有多个 ""
-	Phone sql.NullString `gorm:"uniqueIndex"`
+	Phone sql.NullString `gorm:"unique"`
 	// 最大问题就是，你要解引用
 	// 你要判空
 	//Phone *string

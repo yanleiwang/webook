@@ -91,6 +91,7 @@ func (u *UserHandler) SignUp(ctx *gin.Context) {
 	})
 	if err == service.ErrUserDuplicateEmail {
 		ctx.String(http.StatusOK, "用户已存在， 注册失败")
+		return
 	}
 	if err != nil {
 		ctx.String(http.StatusOK, "系统异常, 注册失败")
