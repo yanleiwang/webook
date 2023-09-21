@@ -8,6 +8,7 @@ import (
 	"log"
 	"strings"
 	"time"
+	"webook/be/config"
 	"webook/be/internal/repository"
 	"webook/be/internal/repository/dao"
 	"webook/be/internal/service"
@@ -58,7 +59,7 @@ func initServer() *gin.Engine {
 }
 
 func initDB() *gorm.DB {
-	db, err := gorm.Open(mysql.Open("root:root@tcp(127.0.0.1:13306)/webook"))
+	db, err := gorm.Open(mysql.Open(config.Config.DB.DSN))
 	if err != nil {
 		panic(err)
 	}
