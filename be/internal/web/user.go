@@ -161,7 +161,32 @@ func (u *UserHandler) Edit(ctx *gin.Context) {
 }
 
 func (u *UserHandler) Profile(ctx *gin.Context) {
+	c, _ := ctx.Get("claims")
+	// 你可以断定，必然有 claims
+	//if !ok {
+	//	// 你可以考虑监控住这里
+	//	ctx.String(http.StatusOK, "系统错误")
+	//	return
+	//}
+	// ok 代表是不是 *UserClaims
+	claims, ok := c.(*UserClaims)
+	if !ok {
+		// 你可以考虑监控住这里
+		ctx.String(http.StatusOK, "系统错误")
+		return
+	}
 
+	user, err := u.userSvc.Profile(ctx, claims.Uid)
+	if err == service.ErrUserNotFound {
+		ctx.String(http.StatusOK, "用户不存在")
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"id":    user.Id,
+		"email": user.Email,
+		"phone": user.Email,
+	})
+	return
 }
 
 type UserClaims struct {

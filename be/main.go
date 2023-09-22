@@ -11,6 +11,7 @@ import (
 	"time"
 	"webook/be/config"
 	"webook/be/internal/repository"
+	"webook/be/internal/repository/cache"
 	"webook/be/internal/repository/dao"
 	"webook/be/internal/service"
 	"webook/be/internal/web"
@@ -24,7 +25,7 @@ func main() {
 
 	server := initServer(redisClient)
 
-	initUser(db, server)
+	initUser(db, redisClient, server)
 
 	if err := server.Run(":8080"); err != nil {
 		log.Println(err)
@@ -35,9 +36,10 @@ func initRedis() redis.Cmdable {
 	return redis.NewClient(&redis.Options{Addr: config.Config.Redis.Addr})
 }
 
-func initUser(db *gorm.DB, server *gin.Engine) {
+func initUser(db *gorm.DB, redisClient redis.Cmdable, server *gin.Engine) {
 	userDAO := dao.NewUserDAO(db)
-	userRepo := repository.NewUserRepository(userDAO)
+	userCache := cache.NewRedisUserCache(redisClient)
+	userRepo := repository.NewUserRepository(userDAO, userCache)
 	userSvc := service.NewUserService(userRepo)
 	userHdl := web.NewUserHandler(userSvc)
 	userHdl.RegisterRoutes(server)

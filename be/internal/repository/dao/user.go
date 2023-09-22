@@ -18,6 +18,7 @@ var (
 type UserDAO interface {
 	Insert(ctx context.Context, user User) error
 	FindByEmail(ctx context.Context, email string) (User, error)
+	FindById(ctx context.Context, id int64) (User, error)
 }
 
 func NewUserDAO(db *gorm.DB) UserDAO {
@@ -34,6 +35,13 @@ func (dao *GORMUserDAO) FindByEmail(ctx context.Context, email string) (User, er
 	var user User
 	// SELECT * FROM `users` WHERE `email`=?
 	err := dao.db.WithContext(ctx).Where("email = ?", email).First(&user).Error
+	return user, err
+}
+
+func (dao *GORMUserDAO) FindById(ctx context.Context, id int64) (User, error) {
+	var user User
+	// SELECT * FROM `users` WHERE `id`=?
+	err := dao.db.WithContext(ctx).Where("id = ?", id).First(&user).Error
 	return user, err
 }
 

@@ -11,6 +11,7 @@ import (
 var (
 	ErrUserDuplicateEmail    = repository.ErrUserDuplicate
 	ErrInvalidUserOrPassword = errors.New("账号/邮箱或密码不对")
+	ErrUserNotFound          = repository.ErrUserNotFound
 )
 
 var _ UserService = (*userService)(nil)
@@ -18,6 +19,7 @@ var _ UserService = (*userService)(nil)
 type UserService interface {
 	SignUp(ctx context.Context, user domain.User) error
 	Login(ctx context.Context, email, password string) (domain.User, error)
+	Profile(ctx context.Context, id int64) (domain.User, error)
 }
 
 func NewUserService(userRepo repository.UserRepository) UserService {
@@ -57,4 +59,8 @@ func (u *userService) Login(ctx context.Context, email, password string) (domain
 	}
 
 	return user, nil
+}
+
+func (u *userService) Profile(ctx context.Context, id int64) (domain.User, error) {
+	return u.userRepo.FindById(ctx, id)
 }
