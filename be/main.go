@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"
@@ -14,18 +15,24 @@ import (
 	"webook/be/internal/service"
 	"webook/be/internal/web"
 	"webook/be/internal/web/middleware"
+	"webook/be/pkg/ginx/middlewares/ratelimit"
 )
 
 func main() {
 	db := initDB()
+	redisClient := initRedis()
 
-	server := initServer()
+	server := initServer(redisClient)
 
 	initUser(db, server)
 
 	if err := server.Run(":8080"); err != nil {
 		log.Println(err)
 	}
+}
+
+func initRedis() redis.Cmdable {
+	return redis.NewClient(&redis.Options{Addr: config.Config.Redis.Addr})
 }
 
 func initUser(db *gorm.DB, server *gin.Engine) {
@@ -36,8 +43,12 @@ func initUser(db *gorm.DB, server *gin.Engine) {
 	userHdl.RegisterRoutes(server)
 }
 
-func initServer() *gin.Engine {
+func initServer(redisClient redis.Cmdable) *gin.Engine {
 	server := gin.Default()
+
+	// 限流
+	server.Use(ratelimit.NewBuilder(redisClient, time.Second, 100).Build())
+
 	// 跨域
 	server.Use(cors.New(cors.Config{
 		AllowCredentials: true,                                                                  // 是否允许带 cookie
